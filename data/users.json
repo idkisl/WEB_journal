@@ -61,5 +61,23 @@
     "email": "3@3",
     "status": "teacher",
     "teachers_login": ""
+  },
+  {
+    "login": "4",
+    "password": "4",
+    "name": "4",
+    "surname": "4",
+    "email": "4@4",
+    "status": "student",
+    "teachers_login": "4"
+  },
+  {
+    "login": "5",
+    "password": "5",
+    "name": "5",
+    "surname": "5",
+    "email": "5@5",
+    "status": "student",
+    "teachers_login": "5"
   }
 ]

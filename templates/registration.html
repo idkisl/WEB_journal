@@ -13,6 +13,7 @@
   <body>
   <div class="card" style="width: 100%; height: 3rem;" ALIGN="right">
       <div class="card-body">
+          <img src={{ logo }} align="left" height="25">
         {{ name_of_user }}
       </div>
     </div>
@@ -87,6 +88,11 @@
               <label class="form-check-label" for="inlineRadio2">Teacher</label>
             </div>
             <br>
+            <div class="input-group mb-3">
+              <label class="input-group-text" for="inputGroupFile01">Загрузить аватар</label>
+              <input type="file" name="avatar" class="form-control" id="inputGroupFile01">
+            </div>
+            <br>
           <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
         </form>
 
@@ -118,7 +124,9 @@
             </div>
           </div>
     {% endif %}
-
+  <br>
+  <br>
+  <br>
 
 
     <!-- Optional JavaScript -->

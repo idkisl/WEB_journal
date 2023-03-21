@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 import json
 import csv
+import os
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yandexlyceum'
 name_of_user = "зарегистрируйтесь"
 current_user = {}
 
@@ -11,7 +13,12 @@ current_user = {}
 @app.route('/', methods=["POST", "GET"])
 @app.route('/index', methods=["POST", "GET"])
 def index():
-    return render_template("start_page.html", name_of_user=name_of_user)
+    return render_template("start_page.html",
+                           name_of_user=name_of_user,
+                           logo=url_for('static', filename='icon.png'),
+                           image_1=url_for('static', filename='image1.jpg'),
+                           image_2=url_for('static', filename='image2.jpg'),
+                           image_3=url_for('static', filename='image3.jpg'))
 
 
 @app.route('/registration', methods=["POST", "GET"])
@@ -29,6 +36,8 @@ def registration():
         email = request.form["email"]
         teachers_login = request.form["teachers_login"]
         status = request.form["inlineRadioOptions"]
+        avatar = request.form["avatar"]
+
         is_same_login = False
         for user in users:
             if user["login"] == login:
@@ -54,7 +63,8 @@ def registration():
                            name_of_user=name_of_user,
                            title="Регистрация",
                            is_good=is_good_rigistration,
-                           login=login)
+                           login=login,
+                           logo=url_for('static', filename='icon.png'))
 
 
 @app.route('/enter', methods=["POST", "GET"])
@@ -96,7 +106,8 @@ def enter():
     return render_template("enter_page.html",
                            name_of_user=name_of_user,
                            title="Вход",
-                           user_login_password=user_login_password)
+                           user_login_password=user_login_password,
+                           logo=url_for('static', filename='icon.png'))
 
 
 @app.route('/diary', methods=["POST", "GET"])
@@ -107,7 +118,8 @@ def diary():
                                name_of_user=name_of_user,
                                title="Дневник",
                                parametr="ученика",
-                               role=True)
+                               role=True,
+                               logo=url_for('static', filename='icon.png'))
 
     with open('data/students.csv', encoding="utf8", errors='ignore') as csvfile:
         reader = csv.reader(csvfile, delimiter=';', quotechar='"', )
@@ -126,7 +138,8 @@ def diary():
                                    title="Дневник",
                                    parametr="ученика",
                                    role=False,
-                                   text="Данный ученик не зарегистрирован в системе")
+                                   text="Данный ученик не зарегистрирован в системе",
+                                   logo=url_for('static', filename='icon.png'))
         teacher_info = {}
 
         for person in reader:
@@ -173,7 +186,8 @@ def diary():
     return render_template("diary_generated.html",
                            name_of_user=name_of_user,
                            title="Дневник",
-                           text_of_hello=f"Оценки ученика {current_user['name']} {current_user['surname']}")
+                           text_of_hello=f"Оценки ученика {current_user['name']} {current_user['surname']}",
+                           logo=url_for('static', filename='icon.png'))
 
 
 @app.route('/journal', methods=["POST", "GET"])
@@ -184,7 +198,8 @@ def journal():
                                name_of_user=name_of_user,
                                title="Журнал",
                                parametr="учителя",
-                               role=True)
+                               role=True,
+                               logo=url_for('static', filename='icon.png'))
     with open('data/students.csv', encoding="utf8", errors='ignore') as csvfile:
         reader = csv.reader(csvfile, delimiter=';', quotechar='"', )
         reader = csv.DictReader(csvfile, delimiter=';', quotechar='"')
@@ -259,7 +274,88 @@ def journal():
                            name_of_user=name_of_user,
                            title="Журнал",
                            text_of_hello=f"Журнал учителя {current_user['name']} {current_user['surname']}",
-                           name_teacher=f"{current_user['name']} {current_user['surname']}")
+                           name_teacher=f"{current_user['name']} {current_user['surname']}",
+                           logo=url_for('static', filename='icon.png'))
+
+
+@app.route('/dnevnik', methods=["POST", "GET"])
+def dnevnik():
+    # если пользователь не авторизован или если он учитель -- не пускать
+    if len(current_user) == 0 or current_user["status"] == "teacher":
+        return render_template("no_acess.html",
+                               name_of_user=name_of_user,
+                               title="Дневник",
+                               parametr="ученика",
+                               role=True,
+                               logo=url_for('static', filename='icon.png'))
+
+    with open('data/students.csv', encoding="utf8", errors='ignore') as csvfile:
+        reader = csv.reader(csvfile, delimiter=';', quotechar='"', )
+        reader = csv.DictReader(csvfile, delimiter=';', quotechar='"')
+        base_info = {}
+        student_info = {}
+        for person in reader:
+            if person["name"] == 'theme_of_lesson' and len(person["surname"]) == 0:
+                base_info = person
+            elif person["name"] == current_user["name"] and person["surname"] == current_user["surname"]:
+                student_info = person
+        # print(person["name"], person["surname"], current_user["name"], current_user["surname"])
+        if len(student_info) == 0:
+            return render_template("no_acess.html",
+                                   name_of_user=name_of_user,
+                                   title="Дневник",
+                                   parametr="ученика",
+                                   role=False,
+                                   text="Данный ученик не зарегистрирован в системе",
+                                   logo=url_for('static', filename='icon.png'))
+        teacher_info = {}
+
+        for person in reader:
+            if person["login"] == student_info["teachers_login"]:
+                teacher_info = person
+        if len(teacher_info) == 0:
+            teacher_info["name"] = "преподаватель"
+            teacher_info["surname"] = "не зарегистрирован"
+
+        keys = list(base_info.keys())
+        keys.remove("name")
+        keys.remove("surname")
+        keys.remove("teacher")
+        keys = sorted(keys)
+        html_str = ""
+        html_str += '''<table class="table" style="text-align: center; vertical-align: middle;">
+              <thead class="thead-light">
+                <tr class="align-bottom">
+                  <th width="10%" scope="row">Номер урока</th>
+                  <th  width="40%" scope="row">Тема урока</th>
+                  <th scope="row">Оценка</th>
+                </tr>
+              </thead>
+
+              <tbody>'''
+        for i in range(len(keys)):
+            html_str += f'''<tr class="align-bottom">
+                          <th  width="10%" scope="row">{i + 1}</th>
+                          <td width="40%" scope="row">{base_info[keys[i]]}</td>
+                          <td scope="row">{student_info[keys[i]]}</td>
+                        </tr>'''
+        html_str += '''
+                  </tbody>
+                </table>'''
+        all_html = ""
+        with open("data/student_part1.txt", "r") as str_1:
+            all_html += str_1.read()
+        all_html += html_str
+        with open("data/student_part3.txt", "r") as str_3:
+            all_html += str_3.read()
+        with open("templates/diary_generated.html", "w") as file:
+            file.write(all_html)
+
+    return render_template("diary_generated.html",
+                           name_of_user=name_of_user,
+                           title="Дневник",
+                           text_of_hello=f"Оценки ученика {current_user['name']} {current_user['surname']}",
+                           logo=url_for('static', filename='icon.png'))
 
 
 if __name__ == '__main__':
