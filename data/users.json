@@ -1,0 +1,65 @@
+[
+  {
+    "login": "ivani",
+    "name": "Ivan",
+    "surname": "Ivanov",
+    "status": "teacher",
+    "password": "1234",
+    "email": "inform@mail.ru",
+    "teachers_login": ""
+  },
+  {
+    "login": "login",
+    "password": "password",
+    "name": "Logan",
+    "surname": "Messi",
+    "email": "messi@mail.ru",
+    "status": "student",
+    "teachers_login": "van"
+  },
+  {
+    "login": "ezh",
+    "password": "1",
+    "name": "class",
+    "surname": "class",
+    "email": "a@mail.ru",
+    "status": "student",
+    "teachers_login": "van"
+  },
+  {
+    "login": "van",
+    "password": "1234",
+    "name": "Van",
+    "surname": "Vong",
+    "email": "i@ind.ru",
+    "status": "teacher",
+    "teachers_login": ""
+  },
+  {
+    "login": "1",
+    "password": "1",
+    "name": "Mary",
+    "surname": "Zagara",
+    "email": "1@1",
+    "status": "student",
+    "teachers_login": "ivani"
+  },
+  {
+    "login": "2",
+    "password": "2",
+    "name": "Маша",
+    "surname": "Загара",
+    "email": "2@2",
+    "status": "student",
+    "teachers_login": "ivani"
+  },
+  {
+    "login": "3",
+    "password": "3",
+    "name": "tasha",
+    "surname": "rostova",
+    "email": "3@3",
+    "status": "teacher",
+    "teachers_login": ""
+  }
+]
