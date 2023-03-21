@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, url_for
 import json
 import csv
-import os
 
 
 app = Flask(__name__)
@@ -278,6 +277,22 @@ def journal():
                            logo=url_for('static', filename='icon.png'))
 
 
+def try_to_make_food():
+    while True:
+        try:
+            a = input("Введите ваш возраст: ")
+            if int(a) < 18:
+                print("Доступ запрещен.")
+                break
+            elif int(a) >= 18:
+                print("Доступ разрешен.")
+                break
+            else:
+                raise ValueError
+        except ValueError:
+            continue
+
+
 @app.route('/dnevnik', methods=["POST", "GET"])
 def dnevnik():
     # если пользователь не авторизован или если он учитель -- не пускать
@@ -355,6 +370,52 @@ def dnevnik():
                            name_of_user=name_of_user,
                            title="Дневник",
                            text_of_hello=f"Оценки ученика {current_user['name']} {current_user['surname']}",
+                           logo=url_for('static', filename='icon.png'))
+
+
+@app.route('/new_person', methods=["POST", "GET"])
+def new_person():
+    with open("data/users.json") as users_file:
+        users = json.load(users_file)
+    is_good_rigistration = "nothing"
+    login = ""
+
+    if request.method == "POST":
+        login = request.form["login"]
+        password = request.form["password"]
+        name = request.form["name"]
+        surname = request.form["surname"]
+        email = request.form["email"]
+        teachers_login = request.form["teachers_login"]
+        status = request.form["inlineRadioOptions"]
+        avatar = request.form["avatar"]
+
+        is_same_login = False
+        for user in users:
+            if user["login"] == login:
+                is_same_login = True
+                is_good_rigistration = "all_bad"
+                break
+        if is_good_rigistration != "all_bad":
+            if not is_same_login and (len(name) == 0 or len(surname) == 0):
+                is_good_rigistration = "bad_name"
+            elif not is_same_login:
+                user = {"login": login,
+                        "password": password,
+                        "name": name,
+                        "surname": surname,
+                        "email": email,
+                        "status": status,
+                        "teachers_login": teachers_login}
+                is_good_rigistration = "all_good"
+                with open("data/users.json", "w") as users_file:
+                    users.append(user)
+                    json.dump(users, users_file, ensure_ascii=False, indent=2)
+    return render_template("registration.html",
+                           name_of_user=name_of_user,
+                           title="Регистрация",
+                           is_good=is_good_rigistration,
+                           login=login,
                            logo=url_for('static', filename='icon.png'))
 
 
